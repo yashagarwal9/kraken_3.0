@@ -1,0 +1,11 @@
+<launch>
+        <arg name="namespace"/>
+
+        <arg name="params"/>
+	<rosparam command="load" file="$(arg params)" />
+
+        <arg name="input_topic" default="/kraken/simulator/thrusters_input" />
+        <arg name="output_topic" default="/kraken/simulator/pose" />
+
+	<node name="dynamics_$(arg namespace)" pkg="simulator_physics_model" type="dynamics.py" args="$(arg namespace) $(arg input_topic) $(arg output_topic)" output="screen" respawn="false"/>
+</launch>

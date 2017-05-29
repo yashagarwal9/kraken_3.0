@@ -36,3 +36,7 @@ target_link_libraries(controlServer AuvController ControlServer)
 rosbuild_add_executable(client src/test.cpp)
 target_link_libraries(client AuvController)
 rosbuild_add_executable(client_action src/test_action_lib.cpp)
+
+rosbuild_find_ros_package(dynamic_reconfigure)
+include(${dynamic_reconfigure_PACKAGE_PATH}/cmake/cfgbuild.cmake)
+gencfg()

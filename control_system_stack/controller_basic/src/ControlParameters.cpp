@@ -2,6 +2,7 @@
 
 namespace kraken_controller
 {
+
 ControlParameters::ControlParameters(int row, int col):_row(row),_col(col)
 {
     _offset = new float[row];
@@ -37,7 +38,8 @@ ControlParameters::~ControlParameters()
 void ControlParameters::load(const std::string &filename)
 {
     std::ifstream file;
-    file.open(filename.c_str());
+    std::string str = "/home/yash/catkin_ws/src/kraken_3.0/control_system_stack/control_server/parameters/";
+    file.open((str.append(filename)).c_str());
     ROS_INFO("loading file with name %s outside if",filename.c_str());
 
     if(file.is_open())
@@ -57,7 +59,7 @@ void ControlParameters::load(const std::string &filename)
         }
     }
 
-    ROS_INFO("file not opened %s",filename.c_str());
+    else ROS_INFO("file not opened %s",filename.c_str());
 }
 void ControlParameters::load(int *arr[22])
 {
@@ -111,4 +113,17 @@ void ControlParameters::write(FILE* fp)
 
     fprintf(fp,"\n");
 }
+void ControlParameters::write(std::fstream* fp){
+      (*fp) << _name.c_str() << "\n";
+      for(int i=0; i<_row; i++){
+          (*fp) << _offset[i] << "\t";
+          for(int j=0; j<_col; j++){
+              (*fp) << _gain[i][j] << "\t";
+            }
+            (*fp) << "\n";
+          }
+      ROS_INFO("FILE UPDATED SUCCESSFULLY");
+      fp->close();
+      //else ROS_INFO("Unable to open file %s", filename);
+  }
 }

@@ -5,8 +5,11 @@
 #include <pose_server/KrakenPose.h>
 #include <kraken_msgs/thrusterData6Thruster.h>
 #include <kraken_msgs/thrusterData4Thruster.h>
-
-
+#include <control_server/paramsConfig.h>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <stdio.h>
 namespace kraken_controller
 {
 
@@ -29,9 +32,12 @@ public:
     void loadParams(const std::vector<std::string> &filenames);
     bool checkError(const kraken_msgs::krakenPose &msg);
     void local2globalAll(kraken_msgs::krakenPose &, kraken_msgs::krakenPose &);
-private:
+    void changeParams(control_server::paramsConfig &msg, int Thruster_selection);
+    std::string curr_file;
     std::vector<ControlParameters*> _control_parameters;
     std::map<std::string,int> _control_parameters_index;
+private:
+
     void multiply(float matrix[][3], float* src_vec, float* dst_vec);
     inline float getYaw(float now,float dest)
     {

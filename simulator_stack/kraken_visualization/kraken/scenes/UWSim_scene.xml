@@ -47,11 +47,11 @@
       <z> -1.57 </z>
     </offsetr>
     <enablePhysics> 1 </enablePhysics>
-	<gravity>
+	<!-- <gravity>
 	  <x>0.0</x>
 	  <y>0.0</y>
 	  <z>-9.8</z>
-	</gravity>
+	</gravity> -->
   </simParams>
   <camera>
     <freeMotion> 1 </freeMotion>
@@ -64,7 +64,7 @@
       <x>-5</x>
       <y>-5 </y>
       <z>9 </z>
-    </position> 
+    </position>
     <lookAt>
       <x>0</x>
       <y>0 </y>
@@ -94,7 +94,7 @@
         <x> 0 </x>
         <y> 0 </y>
         <z> 0 </z>
-      </position>  
+      </position>
       <orientation>
         <r>0</r>
         <p>0</p>
@@ -110,7 +110,7 @@
         <x> 0 </x>
         <y> 0 </y>
         <z> 0 </z>
-      </position>  
+      </position>
       <orientation>
         <r>0</r>
         <p>0</p>
@@ -124,7 +124,7 @@
         <x>0</x>
         <y>0</y>
         <z>0</z>
-      </position>  
+      </position>
       <orientation>
         <r>0</r>
         <p>0</p>
@@ -132,7 +132,7 @@
       </orientation>
       <std>0.00000001</std>
     </imu>
-    
+
     <pressureSensor>
       <name>pressureSensor</name>
       <relativeTo>depth_sensor</relativeTo>
@@ -140,7 +140,7 @@
         <x>0</x>
         <y>0</y>
         <z>0.0</z>
-      </position>  
+      </position>
       <orientation>
         <r>0</r>
         <p>0</p>
@@ -156,7 +156,7 @@
         <x>-0.75</x>
         <y>0</y>
         <z>0</z>
-      </position>  
+      </position>
       <orientation>
         <r>0</r>
         <p>0</p>
@@ -185,20 +185,20 @@
       <vehicleName> kraken </vehicleName>
       <visualize> 1 </visualize>
     </ROSOdomToPAT>
-    <ArmToROSJointState> 
+    <ArmToROSJointState>
 	<topic>/kraken/simulator/joint_state</topic>
 	<vehicleName> kraken </vehicleName>
     </ArmToROSJointState>
-    <ROSJointStateToArm> 
+    <ROSJointStateToArm>
       <topic>/kraken/simulator/joint_state_command</topic>
       <vehicleName> kraken </vehicleName>
       </ROSJointStateToArm>
-    <VirtualCameraToROSImage> 
+    <VirtualCameraToROSImage>
       <cameraName>front</cameraName>
       <imageTopic> /kraken/front_camera </imageTopic>
       <infoTopic> /kraken/front_camera_info </infoTopic>
     </VirtualCameraToROSImage>
-    <VirtualCameraToROSImage> 
+    <VirtualCameraToROSImage>
       <cameraName>bottom</cameraName>
       <imageTopic> /kraken/bottom_camera </imageTopic>
       <infoTopic> /kraken/bottom_camera_info </infoTopic>
@@ -229,4 +229,3 @@
     </ROSPoseToPAT>
   </rosInterfaces>
 </UWSimScene>
-

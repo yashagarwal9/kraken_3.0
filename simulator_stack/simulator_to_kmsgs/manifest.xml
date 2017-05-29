@@ -13,7 +13,5 @@
   <depend package="resources"/>
   <depend package="std_msgs"/>
   <depend package="pose_server"/>
-
+  <depend package="underwater_sensor_msgs"/>
 </package>
-
-

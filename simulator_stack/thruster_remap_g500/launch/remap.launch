@@ -9,7 +9,9 @@
 	<node name="uwsim" pkg="uwsim" type="uwsim" args="--configfile $(arg scene)" output="screen" respawn="false" >
 	</node>
 	<arg name="thrusters_topic" default="/g500/thrusters_input" />
+	<node pkg="tf" type="static_transform_publisher" name="odom_world_transform_broadcaster" args="0 0 0 -1.5708 0 3.1415 /world /odom 100" />
+	<node pkg="tf" type="static_transform_publisher" name="girona500_body_transform_broadcaster" args="0 0 0 0 3.1415 0 /girona500/base_link /body 100" />
 
 	<node name="keyboard_command" pkg="underwater_vehicle_dynamics" type="keyboard.py" args="$(arg thrusters_topic)" output="screen" respawn="false"/>
-    <node name="remap" pkg="thruster_remap_g500" type="remap.py" />
+    <node name="remap" pkg="thruster_remap_g500" type="remap.py" output="screen" />
 </launch>

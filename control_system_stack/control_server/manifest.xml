@@ -16,7 +16,5 @@
   <depend package="actionlib"/>
   <depend package="actionlib_msgs"/>
   <depend package="resources"/>
-
+  <depend package="dynamic_reconfigure"/>
 </package>
-
-

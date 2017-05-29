@@ -8,7 +8,7 @@
 #define OFFSET_VALUE 128.0
 #define SCALING_FACTOR 102.0
 #define MAX_THRUST_FACTOR 0.75
-
+int stop = 0;
 
 /*
 Xbox Controller Mapping
@@ -39,13 +39,13 @@ void joyCB(const sensor_msgs::JoyConstPtr &msg)
 {
 
 
-    _force_sent.data[0] = OFFSET_VALUE + msg->axes[4] * SCALING_FACTOR * MAX_THRUST_FACTOR;
-    _force_sent.data[1] = OFFSET_VALUE + msg->axes[4] * SCALING_FACTOR * MAX_THRUST_FACTOR;
-    _force_sent.data[2] = OFFSET_VALUE - msg->axes[0] * 0.5 * SCALING_FACTOR * MAX_THRUST_FACTOR - msg->axes[3] * 0.5 * SCALING_FACTOR * MAX_THRUST_FACTOR;
-    _force_sent.data[3] = OFFSET_VALUE + msg->axes[0] * 0.5 * SCALING_FACTOR * MAX_THRUST_FACTOR - msg->axes[3] * 0.5 * SCALING_FACTOR * MAX_THRUST_FACTOR;
-    _force_sent.data[4] = OFFSET_VALUE + msg->axes[1] * 0.5 * SCALING_FACTOR * MAX_THRUST_FACTOR - msg->axes[0] * 0.5 * SCALING_FACTOR * MAX_THRUST_FACTOR;
-    _force_sent.data[5] = OFFSET_VALUE + msg->axes[1] * 0.5 * SCALING_FACTOR * MAX_THRUST_FACTOR + msg->axes[0] * 0.5 * SCALING_FACTOR * MAX_THRUST_FACTOR;
-
+    _force_sent.data[0] += 10*msg->axes[5] - 10*msg->axes[4];//OFFSET_VALUE + msg->axes[5] * SCALING_FACTOR * MAX_THRUST_FACTOR;
+    _force_sent.data[1] += 10*msg->axes[5] + 10*msg->axes[4];//OFFSET_VALUE + msg->axes[5] * SCALING_FACTOR * MAX_THRUST_FACTOR;
+    _force_sent.data[2] += 0;//OFFSET_VALUE - msg->axes[4] * 0.5 * SCALING_FACTOR * MAX_THRUST_FACTOR - msg->axes[3] * 0.5 * SCALING_FACTOR * MAX_THRUST_FACTOR;
+    _force_sent.data[3] += 0;//OFFSET_VALUE + msg->axes[4] * 0.5 * SCALING_FACTOR * MAX_THRUST_FACTOR - msg->axes[3] * 0.5 * SCALING_FACTOR * MAX_THRUST_FACTOR;
+    _force_sent.data[4] += -10*msg->axes[3];//OFFSET_VALUE + msg->axes[3] * 0.5 * SCALING_FACTOR * MAX_THRUST_FACTOR - msg->axes[0] * 0.5 * SCALING_FACTOR * MAX_THRUST_FACTOR;
+    _force_sent.data[5] += -10*msg->axes[3];//OFFSET_VALUE + msg->axes[3] * 0.5 * SCALING_FACTOR * MAX_THRUST_FACTOR + msg->axes[0] * 0.5 * SCALING_FACTOR * MAX_THRUST_FACTOR;
+    stop = msg->buttons[2];
 }
 
 int main(int argc, char *argv[])
@@ -58,6 +58,14 @@ int main(int argc, char *argv[])
 
     while(ros::ok())
     {
+        if(stop == 1){
+            _force_sent.data[0] = 0;
+            _force_sent.data[1] = 0;
+            _force_sent.data[2] = 0;
+            _force_sent.data[3] = 0;
+            _force_sent.data[4] = 0;
+            _force_sent.data[5] = 0;
+        }
         _force_pub.publish(_force_sent);
         ros::spinOnce();
         _looprate.sleep();

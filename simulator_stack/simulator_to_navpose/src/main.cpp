@@ -4,12 +4,13 @@
 #include "resources/topicHeader.h"
 #include "ros/ros.h"
 #include "sensor_msgs/Imu.h"
-#include "underwater_sensor_msgs/DVL.h"
-#include "underwater_sensor_msgs/Pressure.h"
+//#include "underwater_sensor_msgs/DVL.h"
+//#include "underwater_sensor_msgs/Pressure.h"
 #include "kraken_msgs/krakenPose.h"
 #include "geometry_msgs/PoseStamped.h"
 #include "geometry_msgs/TwistStamped.h"
 #include "pose_server/KrakenPose.h"
+#include <tf/transform_datatypes.h>
 const double PI=3.14;
 class NavPub
 {
@@ -34,17 +35,20 @@ public:
     }
     void pose_CB(const geometry_msgs::PoseConstPtr & pose_msg)
     {
+        double roll, pitch, yaw;
         _kpose.data[kraken_core::_px]=pose_msg->position.x;
         _kpose.data[kraken_core::_py]=pose_msg->position.y;
         _kpose.data[kraken_core::_pz]=pose_msg->position.z;
 
-        _kpose.data[kraken_core::_roll]=pose_msg->orientation.w;
-        _kpose.data[kraken_core::_pitch]=pose_msg->orientation.x;
-        _kpose.data[kraken_core::_yaw]=pose_msg->orientation.y;
+        tf::Quaternion q(pose_msg->orientation.x, pose_msg->orientation.y, pose_msg->orientation.z, pose_msg->orientation.w);
+        tf::Matrix3x3 m(q);
 
+		m.getRPY(roll, pitch, yaw);
+		_kpose.data[kraken_core::_roll] = roll*180/PI;
+        _kpose.data[kraken_core::_pitch] = pitch*180/PI;
+        _kpose.data[kraken_core::_yaw] = yaw*180/PI;
 
         _krakenpose_pub.publish(_kpose);
-
 
     }
     void twist_CB(const geometry_msgs::TwistStampedConstPtr & twist_msg)
@@ -81,4 +85,3 @@ int main(int argc,char **argv)
     NavPub nv;
     ros::spin();
 }
-

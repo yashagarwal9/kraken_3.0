@@ -2,8 +2,7 @@
 #include <resources/topicHeader.h>
 namespace kraken_controller
 {
-ControlServer::ControlServer(float freq)
-{
+ControlServer::ControlServer(float freq){
     ros::NodeHandle n;
     _time = n.createTimer(ros::Duration(1.0/freq),&ControlServer::timeCallBack,this);
     _pub = n.advertise<kraken_msgs::thrusterData4Thruster>(topics::CONTROL_PID_THRUSTER4,2);
@@ -15,29 +14,23 @@ ControlServer::ControlServer(float freq)
     _do_control = true;
     _ip_controller = false;
 
-    for(int i=0; i<kraken_core::countState; i++)
-    {
+    for(int i=0; i<kraken_core::countState; i++){
         _feedBack.data[i] = 0;
     }
+    flag = false;
 }
 ControlServer::~ControlServer()
-{
+{}
 
-}
-
-void ControlServer::timeCallBack(const ros::TimerEvent &)
-{
+void ControlServer::timeCallBack(const ros::TimerEvent &){
     //std::cerr<<"calling"<<std::endl;
-    if(_do_control)
-    {
+    if(_do_control){
         _controller.doControlIteration(_feedBack);
 
-        if(_ip_controller)
-        {
+        if(_ip_controller){
             _controller.updateIPState();
         }
-        else
-        {
+        else{
             _controller.updateState();
         }
 
@@ -45,55 +38,44 @@ void ControlServer::timeCallBack(const ros::TimerEvent &)
     }
 }
 
-void ControlServer::setServers(actionlib::SimpleActionServer<kraken_msgs::advancedControllerAction> *ser1, actionlib::SimpleActionServer<kraken_msgs::controllerAction> *ser2)
-{
+void ControlServer::setServers(actionlib::SimpleActionServer<kraken_msgs::advancedControllerAction> *ser1, actionlib::SimpleActionServer<kraken_msgs::controllerAction> *ser2){
     _server1 = ser1;
     _server2 = ser2;
     _server1->start();
     _server2->start();
 }
 
-void ControlServer::poseFeedBack(const kraken_msgs::krakenPose::ConstPtr &msg)
-{
+void ControlServer::poseFeedBack(const kraken_msgs::krakenPose::ConstPtr &msg){
 
-    if(!_ip_controller)
-    {
+    if(!_ip_controller){
         _feedBack.data[kraken_core::_px] = msg->data[kraken_core::_px];
         _feedBack.data[kraken_core::_py] = msg->data[kraken_core::_py];
         _feedBack.data[kraken_core::_pz] = msg->data[kraken_core::_pz];
     }
 
-    for(int i=kraken_core::_pz+1; i<kraken_core::countState; i++)
-    {
+    for(int i=kraken_core::_pz+1; i<kraken_core::countState; i++){
         _feedBack.data[i] = msg->data[i];
     }
 
 }
 
-void ControlServer::ipErrorFeedBack(const kraken_msgs::ipControllererror::ConstPtr &msg)
-{
-    if(_ip_controller)
-    {
+void ControlServer::ipErrorFeedBack(const kraken_msgs::ipControllererror::ConstPtr &msg){
+    if(_ip_controller){
         _feedBack.data[kraken_core::_px] = msg->dx;
         _feedBack.data[kraken_core::_py] = msg->dy;
         _feedBack.data[kraken_core::_pz] = msg->dz;
     }
 }
 
-bool ControlServer::moveAlongLine(kraken_msgs::moveAlongLine::Request &req, kraken_msgs::moveAlongLine::Response &res)
-{
-    if(req.type==0)
-    {
+bool ControlServer::moveAlongLine(kraken_msgs::moveAlongLine::Request &req, kraken_msgs::moveAlongLine::Response &res){
+    if(req.type==0){
         _controller.pause();
     }
-    else
-    {
-        if(req.angle<=2.0)
-        {
+    else{
+        if(req.angle<=2.0){
             _controller.moveForward();
         }
-        else
-        {
+        else{
             _controller.moveBack();
         }
     }
@@ -101,29 +83,25 @@ bool ControlServer::moveAlongLine(kraken_msgs::moveAlongLine::Request &req, krak
     return true;
 }
 
-bool ControlServer::changeController(kraken_msgs::switchControllers::Request &req, kraken_msgs::switchControllers::Response &res)
-{
-    if(req.type==0)
-    {
+bool ControlServer::changeController(kraken_msgs::switchControllers::Request &req, kraken_msgs::switchControllers::Response &res){
+    if(req.type==0){
         _ip_controller = false;
     }
-    else
-    {
+    else{
         _ip_controller = true;
     }
 
     return true;
 }
-bool ControlServer::loadParamsCB(control_server::loadParam::Request &req, control_server::loadParam::Response &res)
-{
+bool ControlServer::loadParamsCB(control_server::loadParam::Request &req, control_server::loadParam::Response &res){
     std::vector<std::string> v;
     ROS_INFO("file name req is %s",req.file.c_str());
     v.push_back(req.file);
     loadParams(v);
     res.res=true;
+    return true;
 }
-void ControlServer::executePoseChange(const kraken_msgs::advancedControllerGoalConstPtr &msg)
-{
+void ControlServer::executePoseChange(const kraken_msgs::advancedControllerGoalConstPtr &msg){
     _do_control = false;
 
     kraken_msgs::krakenPose _pose;
@@ -134,27 +112,24 @@ void ControlServer::executePoseChange(const kraken_msgs::advancedControllerGoalC
     _pose.data[kraken_core::_py] = msg->y;
     _pose.data[kraken_core::_pz] = msg->depth;
 
-    if (msg->flag)
-    {
+    if (msg->flag){
         _controller.local2global(_pose,_currPos);
     }
-    else
-    {
+    else{
         _currPos = _pose;
     }
-
+		ROS_INFO("x:%f  y:%f  d:%f",  _currPos.data[kraken_core::_px], _currPos.data[kraken_core::_py], _currPos.data[kraken_core::_pz]);
     _controller.setSetPoint(_currPos);
-    _controller.moveTest();
+    _controller.moveForward();
     ros::Rate looprate(10);
 
     kraken_msgs::advancedControllerFeedback feedback;
     kraken_msgs::advancedControllerResult result;
 
-    while(ros::ok())
-    {
-        if (_server1->isPreemptRequested() || !ros::ok())
-        {
+    while(ros::ok()){
+        if (_server1->isPreemptRequested() || !ros::ok()){
             _server1->setPreempted();
+            ROS_INFO("server1 is preempted");
             break;
         }
 
@@ -162,8 +137,7 @@ void ControlServer::executePoseChange(const kraken_msgs::advancedControllerGoalC
         // std::cout<<feedback.running_time<<std::endl;
         _server1->publishFeedback(feedback);
 
-        if (feedback.running_time)
-        {
+        if (feedback.running_time){
             result.time_taken = 30;
             _server1->setSucceeded(result);
             _controller.pause();
@@ -172,7 +146,6 @@ void ControlServer::executePoseChange(const kraken_msgs::advancedControllerGoalC
 
         _controller.doControlIteration(_feedBack);
         _controller.updateState();
-
         _set_point.publish(_currPos);
         _pub6.publish(_controller.getThruster6Value());
 
@@ -186,8 +159,7 @@ void ControlServer::executePoseChange(const kraken_msgs::advancedControllerGoalC
     _do_control = true;
 }
 
-void ControlServer::executeOrientationChange(const kraken_msgs::controllerGoalConstPtr &msg)
-{
+void ControlServer::executeOrientationChange(const kraken_msgs::controllerGoalConstPtr &msg){
     _do_control = false;
     kraken_msgs::krakenPose _pose;
     _controller.getState(_pose);
@@ -201,10 +173,8 @@ void ControlServer::executeOrientationChange(const kraken_msgs::controllerGoalCo
     kraken_msgs::controllerFeedback feedback;
     kraken_msgs::controllerResult result;
 
-    while(ros::ok())
-    {
-        if (_server2->isPreemptRequested() || !ros::ok())
-        {
+    while(ros::ok()){
+        if (_server2->isPreemptRequested() || !ros::ok()){
             _server2->setPreempted();
             break;
         }
@@ -213,8 +183,7 @@ void ControlServer::executeOrientationChange(const kraken_msgs::controllerGoalCo
         std::cout<<feedback.running_time<<std::endl;
         _server2->publishFeedback(feedback);
 
-        if (feedback.running_time)
-        {
+        if (feedback.running_time){
             result.time_taken = 30;
             //_server2->setSucceeded(result);
             //_controller.pause();
@@ -223,15 +192,12 @@ void ControlServer::executeOrientationChange(const kraken_msgs::controllerGoalCo
 
         _controller.doControlIteration(_feedBack);
 
-        if(_ip_controller)
-        {
+        if(_ip_controller){
             _controller.updateIPState();
         }
-        else
-        {
+        else{
             _controller.updateState();
         }
-
 
         _pub6.publish(_controller.getThruster6Value());
         ros::spinOnce();
@@ -241,12 +207,28 @@ void ControlServer::executeOrientationChange(const kraken_msgs::controllerGoalCo
     _controller.pause();
     _do_control = true;
 }
-
-void ControlServer::loadParams(const std::vector<std::string> &filenames)
-{
+void ControlServer::loadParams(const std::vector<std::string> &filenames){
     ROS_INFO("file name is %s",filenames[0].c_str());
     _controller.loadParams(filenames);
     _controller.pause();
 }
-
+void ControlServer::callback0(control_server::paramsConfig &msg, uint32_t level){
+    if(flag) _controller.changeParams(msg, 0);
+}
+void ControlServer::callback1(control_server::paramsConfig &msg, uint32_t level){
+    if(flag)  _controller.changeParams(msg, 1);
+}
+void ControlServer::callback2(control_server::paramsConfig &msg, uint32_t level){
+    if(flag)  _controller.changeParams(msg, 2);
+}
+void ControlServer::callback3(control_server::paramsConfig &msg, uint32_t level){
+    if(flag)  _controller.changeParams(msg, 3);
+}
+void ControlServer::callback4(control_server::paramsConfig &msg, uint32_t level){
+    if(flag)  _controller.changeParams(msg, 4);
+}
+void ControlServer::callback5(control_server::paramsConfig &msg, uint32_t level){
+    if(flag)  _controller.changeParams(msg, 5);
+    else flag = true;
+}
 }

@@ -2,6 +2,7 @@
 #define CONTROLPARAMETERS_H
 #include <kraken_msgs/krakenPose.h>
 #include <fstream>
+#include <iostream>
 
 namespace kraken_controller
 {
@@ -37,6 +38,7 @@ public:
 
     virtual ~ControlParameters();
     void write(FILE *fp);
+    void write(std::fstream *fp);
     void write(std::ostream &out);
 
 private:

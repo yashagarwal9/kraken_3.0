@@ -55,6 +55,12 @@ int main(int argc, char *argv[])
     ros::Publisher _force_pub = _nh.advertise<kraken_msgs::thrusterData6Thruster>(topics::CONTROL_PID_THRUSTER6, 100);
     ros::Subscriber _joy_sub = _nh.subscribe<sensor_msgs::Joy>("/joy", 100, joyCB);
     ros::Rate _looprate(10);
+    _force_sent.data[0] = OFFSET_VALUE;
+    _force_sent.data[1] = OFFSET_VALUE;
+    _force_sent.data[2] = OFFSET_VALUE;
+    _force_sent.data[3] = OFFSET_VALUE;
+    _force_sent.data[4] = OFFSET_VALUE;
+    _force_sent.data[5] = OFFSET_VALUE;
 
     while(ros::ok())
     {
